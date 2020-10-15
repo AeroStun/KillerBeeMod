@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "killerbee",
+  "version": "${version}",
+  "name": "KillerBee",
+  "description": "Adds a stronger bee variant, which will also chase you far further and stay angry longer",
+  "authors": [
+    "AeroStun"
+  ],
+  "contact": {
+    "repo": "https://github.com/AeroStun/KillerBeeMod"
+  },
+  "license": "Apache-2.0",
+  "icon": "assets/killerbee/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.aerostun.mc.killerbee.client.KillerBeeClient"
+    ],
+    "main": [
+      "dev.aerostun.mc.killerbee.KillerBeeMod"
+    ]
+  },
+  "mixins": [
+    "killerbee.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.10.1+build.209",
+    "fabric": "*",
+    "minecraft": "1.16.3"
+  }
+}
