@@ -1,5 +1,5 @@
 /*
- *     Copyright 2020 AeroStun
+ *     Copyright 2020-2025 AeroStun
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 package dev.aerostun.mc.killerbee;
 
 import dev.aerostun.mc.killerbee.bridge.IBeeEntity;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.entity.passive.PassiveEntity;
@@ -39,12 +40,12 @@ public class KillerBeeEntity extends BeeEntity {
     }
 
     public static DefaultAttributeContainer.Builder createKillerBeeAttributes() {
-        return MobEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MAX_HEALTH, 16.0D)
-                .add(EntityAttributes.GENERIC_FLYING_SPEED, 0.6000000238418579D)
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.30000001192092896D)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 7.0D)
-                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 112.0D);
+        return AnimalEntity.createAnimalAttributes()
+                .add(EntityAttributes.MAX_HEALTH, 16.0D)
+                .add(EntityAttributes.FLYING_SPEED, 0.6D)
+                .add(EntityAttributes.MOVEMENT_SPEED, 0.3D)
+                .add(EntityAttributes.ATTACK_DAMAGE, 7.0D)
+                .add(EntityAttributes.FOLLOW_RANGE, 112.0D);
     }
 
     public boolean canBreedWith(AnimalEntity other) {
@@ -58,35 +59,37 @@ public class KillerBeeEntity extends BeeEntity {
     }
 
     public BeeEntity createChild(ServerWorld serverWorld, PassiveEntity passiveEntity) {
-        if(passiveEntity.getClass() == KillerBeeEntity.class || serverWorld.random.nextBoolean())
-            return KillerBeeMod.KILLER_BEE.create(serverWorld);
-        return EntityType.BEE.create(serverWorld);
+        if (passiveEntity.getClass() == KillerBeeEntity.class || serverWorld.random.nextBoolean())
+            return KillerBeeMod.KILLER_BEE.create(serverWorld, SpawnReason.BREEDING);
+        return EntityType.BEE.create(serverWorld, SpawnReason.BREEDING);
     }
 
     @Override
-    public boolean tryAttack(Entity target) {
-        final boolean bl = target.damage(DamageSource.sting(this), (float)((int)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)));
+    public boolean tryAttack(ServerWorld world, Entity target) {
+        DamageSource damageSource = this.getDamageSources().sting(this);
+        boolean bl = target.damage(world, damageSource, (int) this.getAttributeValue(EntityAttributes.ATTACK_DAMAGE));
         if (bl) {
-            this.dealDamage(this, target);
-            if (target instanceof LivingEntity) {
-                ((LivingEntity)target).setStingerCount(((LivingEntity)target).getStingerCount() + 1);
+            EnchantmentHelper.onTargetDamaged(world, target, damageSource);
+            if (target instanceof LivingEntity livingEntity) {
+                livingEntity.setStingerCount(livingEntity.getStingerCount() + 1);
                 int i = 0;
                 int amp = 0;
-                if (this.world.getDifficulty() == Difficulty.EASY)
+                if (world.getDifficulty() == Difficulty.EASY)
                     i = 2;
-                else if (this.world.getDifficulty() == Difficulty.NORMAL){
+                else if (world.getDifficulty() == Difficulty.NORMAL) {
                     i = 12;
                     amp = 1;
-                } else if (this.world.getDifficulty() == Difficulty.HARD) {
+                } else if (world.getDifficulty() == Difficulty.HARD) {
                     i = 20;
                     amp = 2;
                 }
 
                 if (i > 0)
-                    ((LivingEntity)target).addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, i * 30, amp));
+                    livingEntity
+                            .addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, i * 20, amp));
             }
 
-            ((IBeeEntity)(BeeEntity)this).$setHasStung(true);
+            ((IBeeEntity) (BeeEntity) this).$setHasStung(true);
             this.stopAnger();
             this.playSound(SoundEvents.ENTITY_BEE_STING, 1.0F, 1.0F);
         }

@@ -2,10 +2,10 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.aerostun.mc.killerbee.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "BeeEntityMixin",
-    "BeehiveTreeDecoratorMixin"
+    "BeeDataMixin"
   ],
   "client": [
   ],
