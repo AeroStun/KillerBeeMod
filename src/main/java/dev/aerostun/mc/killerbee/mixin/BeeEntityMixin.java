@@ -1,5 +1,5 @@
 /*
- *     Copyright 2020 AeroStun
+ *     Copyright 2020-2025 AeroStun
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package dev.aerostun.mc.killerbee.mixin;
 import dev.aerostun.mc.killerbee.KillerBeeMod;
 import dev.aerostun.mc.killerbee.bridge.IBeeEntity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.AnimalMateGoal;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.BeeEntity;
@@ -37,30 +38,26 @@ public abstract class BeeEntityMixin extends AnimalEntity implements IBeeEntity 
         super(entityType, world);
     }
 
-    @Redirect(
-            method = "initGoals()V",
-            at = @At(
-                    value = "NEW",
-                    target = "(Lnet/minecraft/entity/passive/AnimalEntity;D)Lnet/minecraft/entity/ai/goal/AnimalMateGoal;"
-            )
-    )
+    @Redirect(method = "initGoals()V", at = @At(value = "NEW", target = "(Lnet/minecraft/entity/passive/AnimalEntity;D)Lnet/minecraft/entity/ai/goal/AnimalMateGoal;"))
     AnimalMateGoal makeGenericBeeMatingGoal(AnimalEntity animal, double chance) {
         return new AnimalMateGoal(animal, chance, BeeEntity.class);
     }
 
     /**
-    * @author AeroStun
-    * @reason Handles cross-breeding with killer-bees
-    */
+     * @author AeroStun
+     * @reason Handles cross-breeding with killer-bees
+     */
     @Overwrite
     public BeeEntity createChild(ServerWorld serverWorld, PassiveEntity passiveEntity) {
-        if(passiveEntity.getClass() == BeeEntity.class || serverWorld.random.nextBoolean())
-            return EntityType.BEE.create(serverWorld);
-        return KillerBeeMod.KILLER_BEE.create(serverWorld);
+        if (passiveEntity.getClass() == BeeEntity.class || serverWorld.random.nextBoolean())
+            return EntityType.BEE.create(serverWorld, SpawnReason.BREEDING);
+        return KillerBeeMod.KILLER_BEE.create(serverWorld, SpawnReason.BREEDING);
     }
 
     @Shadow
-    private void setHasStung(boolean hasStung) { /* dummy body */ }
+    private void setHasStung(boolean hasStung) {
+        /* dummy body */
+    }
 
     public void $setHasStung(boolean hasStung) {
         this.setHasStung(hasStung);

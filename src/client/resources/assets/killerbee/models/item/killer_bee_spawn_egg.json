@@ -1,0 +1,6 @@
+{
+    "parent": "item/generated",
+    "textures": {
+      "layer0": "killerbee:item/killer_bee_spawn_egg"
+    }
+  }

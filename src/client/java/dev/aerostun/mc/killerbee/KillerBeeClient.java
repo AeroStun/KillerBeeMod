@@ -1,5 +1,5 @@
 /*
- *     Copyright 2020 AeroStun
+ *     Copyright 2020-2025 AeroStun
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package dev.aerostun.mc.killerbee.client;
+package dev.aerostun.mc.killerbee;
 
-import dev.aerostun.mc.killerbee.KillerBeeEntityRenderer;
-import dev.aerostun.mc.killerbee.KillerBeeMod;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 @Environment(EnvType.CLIENT)
 public class KillerBeeClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        EntityRendererRegistry.INSTANCE.register(
+        EntityRendererRegistry.register(
                 KillerBeeMod.KILLER_BEE,
-                ((entityRenderDispatcher, context) -> new KillerBeeEntityRenderer(entityRenderDispatcher)));
+                KillerBeeEntityRenderer::new);
     }
 }
